@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         utterance.onerror = () => { if(iconElement) iconElement.classList.remove('playing'); currentlyPlayingIcon = null; };
         synth.speak(utterance);
     }
+    window.addEventListener('beforeunload', () => { if (synth.speaking) { synth.cancel(); } });
     function updateAudioSetting(isEnabled) {
         isAudioEnabled = isEnabled;
         localStorage.setItem('aura_audio_enabled', isEnabled);
@@ -199,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navigateSteps(0);
     }
     
-    function initializeChat() {
+    async function initializeChat() {
         const chatContainer = document.getElementById('chat-container');
         const focusChoices = document.getElementById('focus-choices');
         const textInputContainer = document.getElementById('text-input-container');
@@ -208,8 +209,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitButton = document.getElementById('submit-button');
         const helpButton = document.getElementById('help-button');
         const settingsButton = document.getElementById('settings-button');
+        
+        let apiKey = "";
+        try {
+            const response = await fetch('/api/key');
+            if (!response.ok) throw new Error('Failed to fetch API key');
+            const data = await response.json();
+            apiKey = data.apiKey;
+            if (!apiKey) {
+                addMessage('agent', "Error: API key is missing. Please check the server configuration.");
+                return;
+            }
+        } catch (error) {
+            console.error("Could not fetch API key:", error);
+            addMessage('agent', "I'm having trouble connecting to my core services right now. Please try again later.");
+            return;
+        }
 
-        const apiKey = "";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
         let conversationHistory = [];
         let responseTimer = null;
@@ -255,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (mindfulMomentMatch && detailedTextMatch) {
                     const mindfulMoment = mindfulMomentMatch[1].trim();
                     const detailedText = detailedTextMatch[1].trim();
-                    agentContentHTML = `<div class="agent-bubble p-4 rounded-lg shadow-sm border-l-4 border-color w-full"><div class="flex items-center gap-2 mb-2"><svg class="w-5 h-5 accent-text flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.25h.75a.75.75 0 010 1.5h-.75v.25a.75.75 0 01-1.5 0v-.25h-.75a.75.75 0 010-1.5h.75v-.25A.75.75 0 0110 2zM8.25 5.5a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zM10 18a8 8 0 100-16 8 8 0 000 16zM13 10a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><h4 class="font-semibold text-sm accent-text" data-i18n-key="mindfulMomentTitle">A Mindful Moment</h4></div><p class="font-medium">${mindfulMoment}</p></div><div class="flex items-end gap-2 self-start"><div class="agent-bubble p-3 px-4 rounded-lg shadow-sm">${detailedText}</div><span class="audio-icon text-secondary mb-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg></span></div>`;
+                    agentContentHTML = `<div class="agent-bubble p-4 rounded-lg shadow-sm border-l-4 border-color w-full"><div class="flex items-center gap-2 mb-2"><svg class="w-5 h-5 accent-text flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.25h.75a.75.75 0 010 1.5h-.75v.25a.75.75 0 01-1.5 0v-.25h-.75a.75.75 0 010-1.5h.75v-.25A.75.75 0 0110 2zM8.25 5.5a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zM10 18a8 8 0 100-16 8 8 0 000 16zM13 10a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><h4 class="font-semibold text-sm accent-text" data-i18n-key="mindfulMomentTitle">${getString('mindfulMomentTitle')}</h4></div><p class="font-medium">${mindfulMoment}</p></div><div class="flex items-end gap-2 self-start"><div class="agent-bubble p-3 px-4 rounded-lg shadow-sm">${detailedText}</div><span class="audio-icon text-secondary mb-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg></span></div>`;
                 } else {
                     const cleanMessage = message.replace(/\[\/?MM\]/g, "").replace(/\[\/?DT\]/g, "");
                     agentContentHTML = `<div class="flex items-end gap-2 self-start"><div class="agent-bubble p-3 px-4 rounded-lg shadow-sm">${cleanMessage}</div><span class="audio-icon text-secondary mb-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg></span></div>`;
@@ -301,4 +317,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
