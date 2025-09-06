@@ -1,16 +1,18 @@
-# Use the official, lightweight Nginx web server image
-FROM nginx:alpine
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine
 
-# Declare a build-time argument that we will pass in from Northflank
-ARG GEMINI_API_KEY_ARG
+# Set the working directory in the container
+WORKDIR /usr/src/app
 
-# Copy our index.html file into a temporary location
-COPY ./index.html /tmp/index.html
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
 
-# Run the substitution command inside the container during the build.
-# This finds the placeholder in the temporary file and replaces it with the secret argument,
-# then saves the result to the final web server directory.
-RUN sed "s|__GEMINI_API_KEY_PLACEHOLDER__|${GEMINI_API_KEY_ARG}|g" /tmp/index.html > /usr/share/nginx/html/index.html
+# Copy the rest of your app's source code
+COPY . .
 
-# This is the same command as before to keep the server running
-CMD ["nginx", "-g", "daemon off;"]
+# Make your port available to the world
+EXPOSE 3000
+
+# The command to run your app
+CMD [ "npm", "start" ]
