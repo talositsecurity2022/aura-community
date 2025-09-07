@@ -201,60 +201,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function initializeChat() {
-        const chatContainer = document.getElementById('chat-container');
-        const focusChoices = document.getElementById('focus-choices');
-        const textInputContainer = document.getElementById('text-input-container');
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const submitButton = document.getElementById('submit-button');
-        const helpButton = document.getElementById('help-button');
-        const settingsButton = document.getElementById('settings-button');
-        
-        let apiKey = "";
+    const chatContainer = document.getElementById('chat-container');
+    const focusChoices = document.getElementById('focus-choices');
+    const textInputContainer = document.getElementById('text-input-container');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const submitButton = document.getElementById('submit-button');
+    const helpButton = document.getElementById('help-button');
+    const settingsButton = document.getElementById('settings-button');
+    
+    let apiKey = "";
+    try {
+        const response = await fetch('/api/key');
+        if (!response.ok) {
+            const errorBody = await response.json();
+            throw new Error(errorBody.error || 'Failed to fetch API key from server.');
+        }
+        const data = await response.json();
+        apiKey = data.apiKey;
+        if (!apiKey) {
+            throw new Error("Server returned an empty API key.");
+        }
+    } catch (error) {
+        console.error("Could not fetch API key:", error);
+        // --- NEW, BETTER ERROR MESSAGE ---
+        addMessage('agent', `Connection failed. The server is running, but could not provide the API key. Please check the Runtime Logs for a [DIAGNOSTIC] message. Error: ${error.message}`);
+        return;
+    }
+
+    // The rest of the function is identical to the last correct version
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    let conversationHistory = [];
+    let responseTimer = null;
+    const gentleCheckIns = ["Just a little wave. No pressure to reply.", "It's okay to take your time. This space is here for you whenever you're ready."];
+    function startResponseTimer() { clearTimeout(responseTimer); responseTimer = setTimeout(() => { sendGentleCheckIn(); }, 75000); }
+    function clearResponseTimer() { clearTimeout(responseTimer); }
+    function sendGentleCheckIn() { addMessage('agent', gentleCheckIns[Math.floor(Math.random() * gentleCheckIns.length)]); }
+    async function getAIResponse() {
+        submitButton.disabled = true;
+        showTypingIndicator();
+        const activePrompt = getActivePrompt();
+        const payload = { contents: conversationHistory, systemInstruction: { parts: [{ text: activePrompt }] } };
         try {
-            const response = await fetch('/api/key');
-            if (!response.ok) throw new Error('Failed to fetch API key');
-            const data = await response.json();
-            apiKey = data.apiKey;
-            if (!apiKey) {
-                addMessage('agent', "Error: API key is missing. Please check the server configuration.");
-                return;
-            }
-        } catch (error) {
-            console.error("Could not fetch API key:", error);
-            addMessage('agent', "I'm having trouble connecting to my core services right now. Please try again later.");
-            return;
-        }
-
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-        let conversationHistory = [];
-        let responseTimer = null;
-        const gentleCheckIns = ["Just a little wave. No pressure to reply.", "It's okay to take your time. This space is here for you whenever you're ready."];
-
-        function startResponseTimer() { clearTimeout(responseTimer); responseTimer = setTimeout(() => { sendGentleCheckIn(); }, 75000); }
-        function clearResponseTimer() { clearTimeout(responseTimer); }
-        function sendGentleCheckIn() { addMessage('agent', gentleCheckIns[Math.floor(Math.random() * gentleCheckIns.length)]); }
-        
-        async function getAIResponse() {
-            submitButton.disabled = true;
-            showTypingIndicator();
-            const activePrompt = getActivePrompt();
-            const payload = { contents: conversationHistory, systemInstruction: { parts: [{ text: activePrompt }] } };
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                removeTypingIndicator();
-                if (!response.ok) { addMessage('agent', "I'm having a little trouble connecting right now."); return; }
-                const result = await response.json();
-                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                    if (text.includes('[TRIGGER_HELP_MODAL]')) { helpButton.click(); text = text.replace('[TRIGGER_HELP_MODAL]', '').trim(); }
-                    if (text.includes('[SET_THEME:')) { const match = text.match(/\[SET_THEME:(\w+)\]/); if (match && match[1]) { setTheme(match[1]); text = text.replace(/\[SET_THEME:\w+\]/, '').trim(); } }
-                    addMessage('agent', text);
-                    conversationHistory.push({ role: 'model', parts: [{ text }] });
-                    startResponseTimer();
-                } else { addMessage('agent', "I'm not sure how to respond to that."); }
-            } catch (error) { console.error("API Error:", error); removeTypingIndicator(); addMessage('agent', "Something went wrong on my end."); } finally { submitButton.disabled = false; chatInput.focus(); }
-        }
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            removeTypingIndicator();
+            if (!response.ok) { addMessage('agent', "I'm having a little trouble connecting right now."); return; }
+            const result = await response.json();
+            let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+                if (text.includes('[TRIGGER_HELP_MODAL]')) { helpButton.click(); text = text.replace('[TRIGGER_HELP_MODAL]', '').trim(); }
+                if (text.includes('[SET_THEME:')) { const match = text.match(/\[SET_THEME:(\w+)\]/); if (match && match[1]) { setTheme(match[1]); text = text.replace(/\[SET_THEME:\w+\]/, '').trim(); } }
+                addMessage('agent', text);
+                conversationHistory.push({ role: 'model', parts: [{ text }] });
+                startResponseTimer();
+            } else { addMessage('agent', "I'm not sure how to respond to that."); }
+        } catch (error) { console.error("API Error:", error); removeTypingIndicator(); addMessage('agent', "Something went wrong on my end."); } finally { submitButton.disabled = false; chatInput.focus(); }
+    }
+    // ... the rest of the addMessage, showInitialGreeting, etc. functions are here and unchanged.
+}
 
         function addMessage(sender, message) {
             const bubble = document.createElement('div');
