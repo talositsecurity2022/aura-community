@@ -3,26 +3,25 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- DIAGNOSTIC LINE ---
-// This will print a definitive message to the Northflank Runtime Logs.
-console.log("Server starting... Checking for API Key:", process.env.GEMINI_API_KEY ? "Found" : "NOT FOUND");
-
 // This endpoint provides the API key from the environment variable
 app.get('/api/key', (req, res) => {
-  // Check if the key exists before sending it
+  // --- NEW DIAGNOSTIC LINE ---
+  // This will print to the Runtime Logs EVERY TIME your browser requests the key.
+  console.log(`[DIAGNOSTIC] /api/key endpoint was hit. Key found: ${!!process.env.GEMINI_API_KEY}`);
+
   if (process.env.GEMINI_API_KEY) {
     res.json({ apiKey: process.env.GEMINI_API_KEY });
   } else {
-    res.status(500).json({ error: "API Key not found on server." });
+    res.status(500).json({ error: "API Key not found on server at time of request." });
   }
 });
 
-// This serves your main index.html file and other static assets.
+// This serves your main index.html file
 app.use(express.static(path.join(__dirname, '/')));
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}. Key available at startup: ${!!process.env.GEMINI_API_KEY}`);
 });
