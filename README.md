@@ -1,81 +1,56 @@
-# **Aura: A Compassionate AI Companion**
+![Aura Project Banner](https://placehold.co/1200x300/e0e7ff/3b82f6?text=Aura%20-%20Your%20Compassionate%20AI%20Companion)
 
-*Aura is an open-source, altruistic AI for mental wellness. It provides a private, secure, and psychologically-informed space for reflection and support. Built with a focus on empathy and accessibility, our mission is to make supportive conversations available to everyone.*
+# Aura - Your Compassionate AI Companion
 
-## **✨ Live Demo**
+**A private, secure, and intelligent AI guide for quiet reflection and mental well-being.**
 
-Experience Aura live, deployed on Northflank:
+[![Project Status: Active](https://img.shields.io/badge/status-active-success.svg)](https://github.com/your-username/aura-community)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE.md)
 
-[**➡️ Launch Aura**](https://www.google.com/search?q=https://your-aura-url.northflank.app) *(Replace with your actual Northflank URL)*
+---
 
-## **💡 Core Philosophy**
+Aura is more than just a chatbot; it's a compassionate companion that adapts to your needs, offering a non-judgmental space to process thoughts, explore feelings, and find trusted local resources. Our mission is to make supportive, psychologically-informed conversations accessible, personal, and always available.
 
-Aura is built on a foundation of four key principles:
+*A preview of the Aura chat interface on a mobile device.*
 
-* **❤️ Altruism First:** Aura's core features will always be free. Our success is measured by the well-being we facilitate, not the revenue we generate.  
-* **🔒 Privacy by Design:** Your conversations are yours. Settings are stored on your device, and your data will never be sold. Read our full [Privacy Charter](https://www.google.com/search?q=%23-privacy--ethics).  
-* **🧠 Psychologically-Informed:** Aura's conversational abilities are grounded in established principles from therapeutic modalities like Person-Centered Therapy and CBT, ensuring its guidance is safe and constructive. It is a guide, not a therapist.  
-* \*\* empowers the user with choice—from conversation style to trusted support contacts.
+![Aura Screenshot](https://placehold.co/400x800/ffffff/333333?text=Aura%20Chat%20Interface)
 
-## **🚀 Key Features**
+---
 
-* **Adaptive AI Personas:** Choose from multiple conversation styles, including a fully adaptive AI that changes its tone to best support you.  
-* **Intelligent Layouts:** Longer responses are automatically formatted into a "Mindful Moment" summary and "Deeper Thoughts" to prevent cognitive overload.  
-* **Text-to-Speech:** Listen to Aura's responses in a natural voice, with support for multiple languages and regional accents.  
-* **Localization:** The interface, AI, and support services adapt to your selected language and region.  
-* **Sentiment-Aware Themes:** The app's color palette can subtly shift to create a more calming or uplifting environment based on the conversation.  
-* **User-Curated Safety Net:** You decide which professional support services to list in your personalized, one-click support menu.
+## Key Features
 
-## **🛠️ Technology Stack**
+* **✨ Adaptive AI:** Aura features multiple conversation styles, including a unique adaptive AI that adjusts its tone and approach to match your emotional state, whether you need a mindful sage, a supportive coach, or simply a warm companion.
+* **🧠 Constructive Support:** Moving beyond passive listening, Aura is equipped with a toolkit of gentle, evidence-based techniques to help you reframe negative thoughts, practice self-compassion, and find grounding in moments of overwhelm.
+* **🌐 Comprehensive Resource Hub:** Find the help you need, when you need it. The hub includes a curated directory of trusted national mental health services and a powerful AI Assistant that can perform real-time web searches for specific support in your area.
+* **🎨 Deep Personalization:** Customize your experience with multiple color themes (including a new "Twilight" mode), optional voice responses with localized accents, and a user-curated list of trusted support contacts.
+* **🔒 Privacy by Design:** Aura is built on a foundation of privacy. Conversations are secure, and your personal settings are your own.
 
-Aura is built with a focus on simplicity, security, and scalability.
+---
 
-* **Frontend:** Plain HTML, Tailwind CSS, and modern JavaScript (ES6+). No complex frameworks, ensuring maximum accessibility and performance.  
-* **AI Engine:** Powered by Google's Gemini family of models.  
-* **Deployment:** Hosted on [Northflank](https://northflank.com) for a scalable and secure infrastructure foundation.
+## Technology Stack
 
-## **🗺️ Project Roadmap**
+* **Frontend:** HTML, Tailwind CSS, Vanilla JavaScript
+* **Backend:** Node.js with Express (for secure API key management and future multi-user features)
+* **Database:** PostgreSQL (for Phase 2 multi-user support)
+* **AI:** Google's Gemini API with Search Grounding
+* **Deployment:** Northflank
 
-We are at the beginning of an exciting journey. Our roadmap is divided into three key phases:
+---
 
-1. **Phase 1: Foundation & Community (Current)**  
-   * ✅ Launch a secure, free, and universally accessible "Open Beta".  
-   * ⏳ Gather user feedback to refine and improve the core experience.  
-   * ⏳ Build an initial community of users and contributors.  
-2. **Phase 2: Sustainability & Growth**  
-   * Introduce an ethical, optional "Aura Plus" subscription.  
-   * Implement long-term memory and a personal insights dashboard.  
-   * Develop a library of guided exercises.  
-3. **Phase 3: Ubiquity & Deeper Impact**  
-   * Launch native iOS and Android applications.  
-   * Expand multilingual support.  
-   * Form strategic partnerships with universities and wellness organizations.
+## Project Status
 
-## **💻 Getting Started (For Developers)**
+Aura is currently in active development. The core service is live and functional, with plans for expanded features, deeper personalization, and long-term memory capabilities in the upcoming "Aura Plus" version.
 
-Want to run Aura on your local machine? It's simple\!
+---
 
-1. **Clone the repository:**  
-   git clone \[https://github.com/your-username/aura-project.git\](https://github.com/your-username/aura-project.git)
+## Feedback & Contact
 
-2. **Navigate to the directory:**  
-   cd aura-project
+Your experience is incredibly important to us. While the code is not open for public contribution, we welcome all user feedback, suggestions, and bug reports. Please feel free to reach out via **[Your Preferred Contact Method, e.g., an email address like contact@myaura.ai]**.
 
-3. **Open index.html:**  
-   * Open the index.html file in your web browser. For the best experience and to avoid potential issues with the AI API, we recommend using a simple local server. If you have VS Code, the "Live Server" extension is a great option.
+---
 
-## **❤️ How to Contribute**
+## License
 
-Aura is a project for everyone, and we welcome your contributions. Here are a few ways you can help:
+**Copyright (c) 2025 [Talos IT Security]. All Rights Reserved.**
 
-* **Provide Feedback:** Use the "Feedback" button in the app to share your experience, report bugs, or suggest new features.  
-* **Add a Language:** Help us translate Aura's interface into a new language.  
-* **Contribute Code:** Fork the repository, make your changes, and submit a pull request. We are always open to improvements that align with our core philosophy.
-
-## **🛡️ Privacy & Ethics**
-
-Our commitment to your privacy is absolute. We do not sell your data, and your settings are stored on your own device. For a full breakdown of our data handling practices, please read our **Privacy Charter**. *(This would be a link to the charter file in the repository).*
-
-## **📄 License**
-
-This project is licensed under the MIT License. See the [LICENSE.md](http://docs.google.com/LICENSE.md) file for details.
+This software and all associated documentation files are the proprietary intellectual property of [Talos IT Security]. Permission is not granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software. For more details, see the `LICENSE.md` file.
