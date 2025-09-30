@@ -325,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { console.error("AI Search Error:", error); aiSearchResults.innerHTML = getString('searchError'); } finally { aiSearchButton.disabled = false; }
         }
 
+        // Attach listeners for main app
         chatForm.addEventListener('submit', async (e) => { e.preventDefault(); clearResponseTimer(); const message = chatInput.value.trim(); if (!message || submitButton.disabled) return; if (!focusChoices.classList.contains('hidden')) { focusChoices.classList.add('hidden'); } addMessage('user', message); conversationHistory.push({ role: 'user', parts: [{ text: message }] }); chatInput.value = ''; await saveMessage('user', message); getAIResponse(); });
         chatInput.addEventListener('input', clearResponseTimer);
         helpButton.addEventListener('click', () => {
@@ -411,8 +412,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function startApplication() {
         loadVoices(); // Pre-warm the voice engine
         if (authToken) {
-            initializeMainApp();
+            // If we have a token, we must verify it and get the API key
+            fetch(`${BACKEND_URL}/api/key`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+                .then(response => {
+                    if (!response.ok) {
+                        localStorage.removeItem('aura_auth_token');
+                        authToken = null;
+                        throw new Error('Session expired');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    apiKey = data.apiKey;
+                    if(apiKey) {
+                        initializeMainApp();
+                    } else {
+                        throw new Error('API Key not returned from server.');
+                    }
+                })
+                .catch(error => {
+                    console.error("Authentication Error:", error);
+                    initializeAuth(); // If token is bad or server fails, show login
+                });
         } else {
+            // No token, needs authentication
             initializeAuth();
         }
     }
