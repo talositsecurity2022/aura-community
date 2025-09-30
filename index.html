@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root, [data-theme="default"] { --bg-color: #F8F7F4; --main-card-bg: rgba(255, 255, 255, 0.7); --agent-bubble-bg: #f3f4f6; --user-bubble-bg: #e0e7ff; --accent-color: #3b82f6; --text-primary: #1f2937; --text-secondary: #4b5563; --border-color: rgba(229, 231, 235, 0.8); }
+        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        :root, [data-theme="default"] { --bg-gradient: linear-gradient(-45deg, #eef2f5, #f8f7f4, #e6e9f0, #f8f7f4); --main-card-bg: rgba(255, 255, 255, 0.7); --agent-bubble-bg: #f3f4f6; --user-bubble-bg: #e0e7ff; --accent-color: #3b82f6; --text-primary: #1f2937; --text-secondary: #4b5563; --border-color: rgba(229, 231, 235, 0.8); }
         [data-theme="sunrise"] { --bg-gradient: linear-gradient(-45deg, #fff2f0, #fffbf5, #ffedd5, #fffbf5); --main-card-bg: rgba(255, 253, 250, 0.7); --agent-bubble-bg: #fef3c7; --user-bubble-bg: #ffedd5; --accent-color: #f97316; --text-primary: #472c1a; --text-secondary: #785a49; --border-color: rgba(253, 230, 208, 0.8); }
         [data-theme="forest"] { --bg-gradient: linear-gradient(-45deg, #f0fdf4, #f0f5f3, #dcfce7, #f0f5f3); --main-card-bg: rgba(248, 252, 250, 0.7); --agent-bubble-bg: #dcfce7; --user-bubble-bg: #cffafe; --accent-color: #0d9488; --text-primary: #1e3a35; --text-secondary: #4a635e; --border-color: rgba(216, 229, 225, 0.8); }
         [data-theme="twilight"] { --bg-gradient: linear-gradient(-45deg, #f5f3ff, #eef2ff, #faf5ff, #eef2ff); --main-card-bg: rgba(245, 243, 255, 0.7); --agent-bubble-bg: #e9d5ff; --user-bubble-bg: #dbeafe; --accent-color: #8b5cf6; --text-primary: #2e1065; --text-secondary: #581c87; --border-color: rgba(221, 214, 254, 0.8); }
@@ -23,7 +24,6 @@
         .chat-bubble { animation: fadeIn 0.5s ease-in-out, slideIn 0.5s ease-in-out; max-width: 85%; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(10px); } to { transform: translateY(0); } }
-        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .focus-button:hover, .theme-button:hover, .persona-button:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05); }
         .onboarding-step { display: none; }
         .onboarding-step.active { display: block; animation: fadeIn 0.5s; }
@@ -105,8 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainAppContainer = document.getElementById('main-app-container');
     const onboardingContainer = document.getElementById('onboarding-container');
     const authModal = document.getElementById('auth-modal');
-    
-    // This will be filled in with your actual backend URL after deployment
     const BACKEND_URL = "https://aura-plus-backend--yl8qrmtvgbl7.code.run";
 
     let authToken = localStorage.getItem('aura_auth_token');
@@ -325,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { console.error("AI Search Error:", error); aiSearchResults.innerHTML = getString('searchError'); } finally { aiSearchButton.disabled = false; }
         }
 
-        // Attach listeners for main app
         chatForm.addEventListener('submit', async (e) => { e.preventDefault(); clearResponseTimer(); const message = chatInput.value.trim(); if (!message || submitButton.disabled) return; if (!focusChoices.classList.contains('hidden')) { focusChoices.classList.add('hidden'); } addMessage('user', message); conversationHistory.push({ role: 'user', parts: [{ text: message }] }); chatInput.value = ''; await saveMessage('user', message); getAIResponse(); });
         chatInput.addEventListener('input', clearResponseTimer);
         helpButton.addEventListener('click', () => {
@@ -389,7 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('aura_current_theme') || 'default';
         const savedAudio = localStorage.getItem('aura_audio_enabled') === 'true';
         
-        document.getElementById('language-select').value = savedLanguage;
+        const languageSelect = document.getElementById('language-select');
+        if(languageSelect) languageSelect.value = savedLanguage;
         
         setLanguage(savedLanguage);
         setPersona(savedPersona);
@@ -409,31 +407,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. START THE APPLICATION ---
-    function startApplication() {
+    async function startApplication() {
         loadVoices(); // Pre-warm the voice engine
         if (authToken) {
-            // If we have a token, we must verify it and get the API key
-            fetch(`${BACKEND_URL}/api/key`, { headers: { 'Authorization': `Bearer ${authToken}` } })
-                .then(response => {
-                    if (!response.ok) {
-                        localStorage.removeItem('aura_auth_token');
-                        authToken = null;
-                        throw new Error('Session expired');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    apiKey = data.apiKey;
-                    if(apiKey) {
-                        initializeMainApp();
-                    } else {
-                        throw new Error('API Key not returned from server.');
-                    }
-                })
-                .catch(error => {
-                    console.error("Authentication Error:", error);
-                    initializeAuth(); // If token is bad or server fails, show login
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/key`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
+                if (!response.ok) {
+                    localStorage.removeItem('aura_auth_token');
+                    authToken = null;
+                    throw new Error('Session expired');
+                }
+                const data = await response.json();
+                apiKey = data.apiKey;
+                if (!apiKey) throw new Error('API Key not returned from server.');
+                
+                // If everything is okay, initialize the main app
+                initializeMainApp();
+
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                initializeAuth(); // If token is bad or server fails, show login
+            }
         } else {
             // No token, needs authentication
             initializeAuth();
@@ -483,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     authToken = data.token;
                     localStorage.setItem('aura_auth_token', authToken);
                     authModal.classList.add('hidden');
-                    startApplication(); // Restart the app now that we are logged in
+                    startApplication();
                 } else {
                     alert("Signup successful! Please log in.");
                     isLogin = true;
@@ -507,4 +503,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
