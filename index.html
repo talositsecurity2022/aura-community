@@ -7,12 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        :root, [data-theme="default"] { --bg-gradient: linear-gradient(-45deg, #eef2f5, #f8f7f4, #e6e9f0, #f8f7f4); --main-card-bg: rgba(255, 255, 255, 0.7); --agent-bubble-bg: #f3f4f6; --user-bubble-bg: #e0e7ff; --accent-color: #3b82f6; --text-primary: #1f2937; --text-secondary: #4b5563; --border-color: rgba(229, 231, 235, 0.8); }
+        :root, [data-theme="default"] { --bg-color: #F8F7F4; --main-card-bg: rgba(255, 255, 255, 0.7); --agent-bubble-bg: #f3f4f6; --user-bubble-bg: #e0e7ff; --accent-color: #3b82f6; --text-primary: #1f2937; --text-secondary: #4b5563; --border-color: rgba(229, 231, 235, 0.8); }
         [data-theme="sunrise"] { --bg-gradient: linear-gradient(-45deg, #fff2f0, #fffbf5, #ffedd5, #fffbf5); --main-card-bg: rgba(255, 253, 250, 0.7); --agent-bubble-bg: #fef3c7; --user-bubble-bg: #ffedd5; --accent-color: #f97316; --text-primary: #472c1a; --text-secondary: #785a49; --border-color: rgba(253, 230, 208, 0.8); }
         [data-theme="forest"] { --bg-gradient: linear-gradient(-45deg, #f0fdf4, #f0f5f3, #dcfce7, #f0f5f3); --main-card-bg: rgba(248, 252, 250, 0.7); --agent-bubble-bg: #dcfce7; --user-bubble-bg: #cffafe; --accent-color: #0d9488; --text-primary: #1e3a35; --text-secondary: #4a635e; --border-color: rgba(216, 229, 225, 0.8); }
         [data-theme="twilight"] { --bg-gradient: linear-gradient(-45deg, #f5f3ff, #eef2ff, #faf5ff, #eef2ff); --main-card-bg: rgba(245, 243, 255, 0.7); --agent-bubble-bg: #e9d5ff; --user-bubble-bg: #dbeafe; --accent-color: #8b5cf6; --text-primary: #2e1065; --text-secondary: #581c87; --border-color: rgba(221, 214, 254, 0.8); }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient, var(--bg-color)); background-size: 400% 400%; animation: gradientAnimation 20s ease infinite; color: var(--text-primary); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient, #F8F7F4); background-size: 400% 400%; animation: gradientAnimation 20s ease infinite; color: var(--text-primary); }
         .main-card-bg { background-color: var(--main-card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); }
         .agent-bubble { background-color: var(--agent-bubble-bg); border-bottom-left-radius: 0.25rem; }
         .user-bubble { background-color: var(--user-bubble-bg); border-bottom-right-radius: 0.25rem; }
@@ -24,6 +23,7 @@
         .chat-bubble { animation: fadeIn 0.5s ease-in-out, slideIn 0.5s ease-in-out; max-width: 85%; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(10px); } to { transform: translateY(0); } }
+        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .focus-button:hover, .theme-button:hover, .persona-button:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05); }
         .onboarding-step { display: none; }
         .onboarding-step.active { display: block; animation: fadeIn 0.5s; }
@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const onboardingContainer = document.getElementById('onboarding-container');
     const authModal = document.getElementById('auth-modal');
     
-    // --- IMPORTANT: UPDATE THIS URL ---
-    const BACKEND_URL = "https://http--aura-plus-backend--yl8qrmtvgbl7.code.run";
+    // This will be filled in with your actual backend URL after deployment
+    const BACKEND_URL = "https://aura-plus-backend--yl8qrmtvgbl7.code.run";
 
     let authToken = localStorage.getItem('aura_auth_token');
     let apiKey = "";
@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPersona = 'adaptive';
     const synth = window.speechSynthesis;
     let currentlyPlayingIcon = null;
+    let voiceList = [];
 
     const languageStrings = {
         'en-AU': { welcomeTitle: "Welcome to Aura", welcomeSubtitle: "Your private space for quiet reflection.", languageLabel: "Language & Region", disclaimerTitle: "Important:", disclaimerText: "Aura is an AI guide for well-being, not a replacement for medical advice or therapy. If you are in crisis, please contact a professional.", continueButton: "I Understand, Continue", trustedSupportTitle: "Your Trusted Support", trustedSupportSubtitle: "Please select the services you feel comfortable with. This is for your eyes only.", personalizeTitle: "Personalize Your Space", personalizeSubtitle: "Select a theme and decide if you'd like Aura to speak out loud.", enableVoiceLabel: "Enable Voice Responses", convoStyleTitle: "Choose a Conversation Style", convoStyleSubtitle: "How would you like Aura to talk with you? You can change this any time.", readyTitle: "Your Space is Ready", readySubtitle: "Your preferences have been saved privately on this device.", enterButton: "Enter Aura", auraTitle: "Aura", auraSubtitle: "Your personal guide to a calmer day.", supportButton: "Support", chatPlaceholder: "Type your message...", supportModalTitle: "Resource Hub", supportModalSubtitle: "Find trusted local services or ask Aura to search for specific help near you.", closeButton: "Close", settingsTitle: "Settings", themeTitle: "Color Theme", audioTitle: "Audio", startOverTitle: "Start Over", startOverSubtitle: "This will clear your saved settings and restart the app, showing the intro screen again.", resetButton: "Reset & Start Over", focusRelax: "Relax & Unwind", focusUplift: "Lift My Spirits", focusThoughts: "Sort My Thoughts", mindfulMomentTitle: "A Mindful Moment", resourceHubTitle: "Resource Hub", directoryTab: "Trusted Directory", aiSearchTab: "AI Assistant Search", directoryDescription: "These are vetted national services for your region. For immediate danger, please call your local emergency number.", aiSearchDescription: "Describe the help you're looking for. Be as specific as you like (e.g., \"low-cost youth counseling in Melbourne\").", aiSearchInitial: "Your search results will appear here.", aiSearchPlaceholder: "e.g., 'online support groups for anxiety'", searchButton: "Search", searching: "Searching...", noResults: "I couldn't find any specific results for that search.", searchError: "Sorry, the search feature is currently unavailable.", welcomeMessage: "Hello! I'm Aura. I'm here to help you take a quiet moment for yourself. What's on your mind?"},
@@ -146,13 +147,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = getString(el.dataset.i18nPlaceholder); });
         populateServiceList(); 
     }
+    function loadVoices() {
+        voiceList = synth.getVoices();
+        if (voiceList.length === 0 && 'onvoiceschanged' in synth) {
+            synth.onvoiceschanged = () => {
+                voiceList = synth.getVoices();
+            };
+        }
+    }
     function speakText(text, iconElement) {
         if (synth.speaking) { synth.cancel(); }
         if (currentlyPlayingIcon) { currentlyPlayingIcon.classList.remove('playing'); }
         const utterance = new SpeechSynthesisUtterance(text);
-        let voices = synth.getVoices();
-        let targetVoice = voices.find(voice => voice.lang === currentLanguage) || voices.find(voice => voice.lang.startsWith(currentLanguage.split('-')[0]));
-        if (targetVoice) utterance.voice = targetVoice;
+        let targetVoice = voiceList.find(voice => voice.lang === currentLanguage) || voiceList.find(voice => voice.lang.startsWith(currentLanguage.split('-')[0]));
+        if (targetVoice) { utterance.voice = targetVoice; }
         utterance.onstart = () => { if(iconElement) iconElement.classList.add('playing'); currentlyPlayingIcon = iconElement; };
         utterance.onend = () => { if(iconElement) iconElement.classList.remove('playing'); currentlyPlayingIcon = null; };
         utterance.onerror = () => { if(iconElement) iconElement.classList.remove('playing'); currentlyPlayingIcon = null; };
@@ -178,8 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const steps = Array.from(document.querySelectorAll('.onboarding-step'));
     function navigateSteps(currentStepIndex) { steps.forEach((step, i) => step.classList.toggle('active', i === currentStepIndex)); }
     function populateServiceList() { const list = document.getElementById('service-list'); if(list) { const data = localizedSupportServices[currentLanguage] || localizedSupportServices['en-AU']; const services = Object.values(data.categories).flatMap(c => c.services); list.innerHTML = services.map((service, index) => `<label class="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50 border-color"><input type="checkbox" class="mt-1 h-5 w-5 accent-bg text-white border-gray-300 rounded focus:ring-blue-500" data-index="${index}" checked><div class="ml-3"><p class="font-semibold">${service.name}</p><p class="text-sm text-secondary">${service.description}</p></div></label>`).join(''); }}
-    function showModal(modal) { modalBackdrop.classList.remove('hidden'); modal.classList.remove('hidden'); }
-    function hideModals() { modalBackdrop.classList.add('hidden'); helpModal.classList.add('hidden'); settingsModal.classList.add('hidden'); }
+    function showModal(modal) { const modalBackdrop = document.getElementById('modal-backdrop'); modal.classList.remove('hidden'); modalBackdrop.classList.remove('hidden'); }
+    function hideModals() { const modalBackdrop = document.getElementById('modal-backdrop'); const helpModal = document.getElementById('help-modal'); const settingsModal = document.getElementById('settings-modal'); modalBackdrop.classList.add('hidden'); helpModal.classList.add('hidden'); settingsModal.classList.add('hidden'); }
     
     // --- 3. DEFINE MAIN APPLICATION LOGIC ---
     
@@ -221,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (text.includes('[TRIGGER_HELP_MODAL]')) { helpButton.click(); text = text.replace('[TRIGGER_HELP_MODAL]', '').trim(); }
                     if (text.includes('[SET_THEME:')) { const match = text.match(/\[SET_THEME:(\w+)\]/); if (match && match[1]) { setTheme(match[1]); text = text.replace(/\[SET_THEME:\w+\]/, '').trim(); } }
                     addMessage('agent', text);
+                    await saveMessage('agent', text);
                     conversationHistory.push({ role: 'model', parts: [{ text }] });
                     startResponseTimer();
                 } else { addMessage('agent', "I received an empty response. Let's try something else."); }
@@ -258,8 +267,36 @@ document.addEventListener('DOMContentLoaded', () => {
         function showTypingIndicator() { const typingBubble = document.createElement('div'); typingBubble.id = 'typing-indicator'; typingBubble.className = 'chat-bubble flex justify-start'; typingBubble.innerHTML = `<div class="agent-bubble p-3 px-4 rounded-lg shadow-sm"><div class="flex items-center space-x-1.5"><div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s;"></div><div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div><div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div></div></div>`; chatContainer.appendChild(typingBubble); chatContainer.scrollTop = chatContainer.scrollHeight; }
         function removeTypingIndicator() { const indicator = document.getElementById('typing-indicator'); if (indicator) indicator.remove(); }
         
-        function handleFocusSelection(focusText) { addMessage('user', focusText); conversationHistory.push({ role: 'user', parts: [{ text: focusText }] }); focusChoices.classList.add('hidden'); getAIResponse(); }
+        async function saveMessage(role, content) {
+            try {
+                await fetch(`${BACKEND_URL}/api/conversations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ role, content })
+                });
+            } catch (error) { console.error("Failed to save message:", error); }
+        }
+
+        async function loadHistory() {
+            if (!authToken) return;
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/conversations`, { headers: { 'Authorization': `Bearer ${authToken}` } });
+                if(response.ok) {
+                    const history = await response.json();
+                    conversationHistory = history;
+                    chatContainer.innerHTML = '';
+                    history.forEach(msg => addMessage(msg.role, msg.parts[0].text));
+                }
+            } catch (error) { console.error("Failed to load history:", error); }
+        }
+
+        function handleFocusSelection(focusText) { addMessage('user', focusText); conversationHistory.push({ role: 'user', parts: [{ text: focusText }] }); focusChoices.classList.add('hidden'); saveMessage('user', focusText).then(() => getAIResponse()); }
         function showInitialGreeting() {
+            if (conversationHistory.length > 0) {
+                textInputContainer.classList.remove('hidden');
+                chatInput.focus();
+                return;
+            };
             const greeting = getString('welcomeMessage');
             addMessage('agent', greeting);
             conversationHistory.push({ role: 'model', parts: [{ text: greeting }] });
@@ -288,8 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { console.error("AI Search Error:", error); aiSearchResults.innerHTML = getString('searchError'); } finally { aiSearchButton.disabled = false; }
         }
 
-        // Attach listeners for main app
-        chatForm.addEventListener('submit', (e) => { e.preventDefault(); clearResponseTimer(); const message = chatInput.value.trim(); if (!message || submitButton.disabled) return; if (!focusChoices.classList.contains('hidden')) { focusChoices.classList.add('hidden'); } addMessage('user', message); conversationHistory.push({ role: 'user', parts: [{ text: message }] }); chatInput.value = ''; getAIResponse(); });
+        chatForm.addEventListener('submit', async (e) => { e.preventDefault(); clearResponseTimer(); const message = chatInput.value.trim(); if (!message || submitButton.disabled) return; if (!focusChoices.classList.contains('hidden')) { focusChoices.classList.add('hidden'); } addMessage('user', message); conversationHistory.push({ role: 'user', parts: [{ text: message }] }); chatInput.value = ''; await saveMessage('user', message); getAIResponse(); });
         chatInput.addEventListener('input', clearResponseTimer);
         helpButton.addEventListener('click', () => {
             const countryData = localizedSupportServices[currentLanguage] || localizedSupportServices['en-AU'];
@@ -362,18 +398,90 @@ document.addEventListener('DOMContentLoaded', () => {
         createThemeSelector('settings-theme-selector');
         createPersonaSelector('settings-persona-selector');
         
-        document.getElementById('reset-app-button')?.addEventListener('click', () => { localStorage.clear(); location.reload(); });
+        document.getElementById('reset-app-button')?.addEventListener('click', () => { 
+            authToken = null;
+            localStorage.clear(); 
+            location.reload(); 
+        });
 
         initializeChat();
     }
 
     // --- 4. START THE APPLICATION ---
-    if (localStorage.getItem('aura_setup_complete') === 'true') {
-        initializeMainApp();
-    } else {
-        initializeOnboarding();
+    function startApplication() {
+        loadVoices(); // Pre-warm the voice engine
+        if (authToken) {
+            initializeMainApp();
+        } else {
+            initializeAuth();
+        }
     }
+
+    function initializeAuth() {
+        const authForm = document.getElementById('auth-form');
+        const authEmail = document.getElementById('auth-email');
+        const authPassword = document.getElementById('auth-password');
+        const authSubmitButton = document.getElementById('auth-submit-button');
+        const authToggleButton = document.getElementById('auth-toggle-button');
+        const authError = document.getElementById('auth-error');
+        const authTitle = document.getElementById('auth-title');
+        let isLogin = true;
+
+        authToggleButton.addEventListener('click', () => {
+            isLogin = !isLogin;
+            authTitle.textContent = isLogin ? "Login to Aura" : "Sign Up for Aura";
+            authSubmitButton.textContent = isLogin ? "Login" : "Sign Up";
+            authToggleButton.textContent = isLogin ? "Need an account? Sign up" : "Have an account? Login";
+            authError.textContent = "";
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = authEmail.value;
+            const password = authPassword.value;
+            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+            authError.textContent = "";
+            authSubmitButton.disabled = true;
+
+            try {
+                const response = await fetch(BACKEND_URL + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json().catch(()=>({}));
+                    throw new Error(data.error || (isLogin ? "Invalid credentials." : "Could not sign up."));
+                }
+                
+                if (isLogin) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    localStorage.setItem('aura_auth_token', authToken);
+                    authModal.classList.add('hidden');
+                    startApplication(); // Restart the app now that we are logged in
+                } else {
+                    alert("Signup successful! Please log in.");
+                    isLogin = true;
+                    authTitle.textContent = "Login to Aura";
+                    authSubmitButton.textContent = "Login";
+                    authToggleButton.textContent = "Need an account? Sign up";
+                    authPassword.value = "";
+                }
+            } catch (error) {
+                authError.textContent = error.message;
+            } finally {
+                authSubmitButton.disabled = false;
+            }
+        });
+        
+        authModal.classList.remove('hidden');
+    }
+    
+    startApplication();
 });
 </script>
 </body>
 </html>
+
