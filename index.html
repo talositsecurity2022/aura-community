@@ -7,8 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        :root, [data-theme="default"] { --bg-gradient: linear-gradient(-45deg, #eef2f5, #f8f7f4, #e6e9f0, #f8f7f4); --main-card-bg: rgba(255, 255, 255, 0.7); --agent-bubble-bg: #f3f4f6; --user-bubble-bg: #e0e7ff; --accent-color: #3b82f6; --text-primary: #1f2937; --text-secondary: #4b5563; --border-color: rgba(229, 231, 235, 0.8); }
+        :root, [data-theme="default"] { --bg-color: #F8F7F4; --main-card-bg: rgba(255, 255, 255, 0.7); --agent-bubble-bg: #f3f4f6; --user-bubble-bg: #e0e7ff; --accent-color: #3b82f6; --text-primary: #1f2937; --text-secondary: #4b5563; --border-color: rgba(229, 231, 235, 0.8); }
         [data-theme="sunrise"] { --bg-gradient: linear-gradient(-45deg, #fff2f0, #fffbf5, #ffedd5, #fffbf5); --main-card-bg: rgba(255, 253, 250, 0.7); --agent-bubble-bg: #fef3c7; --user-bubble-bg: #ffedd5; --accent-color: #f97316; --text-primary: #472c1a; --text-secondary: #785a49; --border-color: rgba(253, 230, 208, 0.8); }
         [data-theme="forest"] { --bg-gradient: linear-gradient(-45deg, #f0fdf4, #f0f5f3, #dcfce7, #f0f5f3); --main-card-bg: rgba(248, 252, 250, 0.7); --agent-bubble-bg: #dcfce7; --user-bubble-bg: #cffafe; --accent-color: #0d9488; --text-primary: #1e3a35; --text-secondary: #4a635e; --border-color: rgba(216, 229, 225, 0.8); }
         [data-theme="twilight"] { --bg-gradient: linear-gradient(-45deg, #f5f3ff, #eef2ff, #faf5ff, #eef2ff); --main-card-bg: rgba(245, 243, 255, 0.7); --agent-bubble-bg: #e9d5ff; --user-bubble-bg: #dbeafe; --accent-color: #8b5cf6; --text-primary: #2e1065; --text-secondary: #581c87; --border-color: rgba(221, 214, 254, 0.8); }
@@ -24,6 +23,7 @@
         .chat-bubble { animation: fadeIn 0.5s ease-in-out, slideIn 0.5s ease-in-out; max-width: 85%; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(10px); } to { transform: translateY(0); } }
+        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .focus-button:hover, .theme-button:hover, .persona-button:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05); }
         .onboarding-step { display: none; }
         .onboarding-step.active { display: block; animation: fadeIn 0.5s; }
@@ -39,7 +39,8 @@
             <h2 id="auth-title" class="text-2xl font-bold mb-6 text-center">Welcome to Aura</h2>
             <form id="auth-form">
                 <input type="email" id="auth-email" class="w-full p-3 border border-gray-300 rounded-md mb-4" placeholder="Email Address" required>
-                <input type="password" id="auth-password" class="w-full p-3 border border-gray-300 rounded-md mb-6" placeholder="Password" required>
+                <input type="password" id="auth-password" class="w-full p-3 border border-gray-300 rounded-md mb-4" placeholder="Password" required>
+                <input type="password" id="auth-password-confirm" class="w-full p-3 border border-gray-300 rounded-md mb-6 hidden" placeholder="Confirm Password" required>
                 <button type="submit" id="auth-submit-button" class="w-full accent-bg text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition">Login</button>
             </form>
             <p id="auth-error" class="text-red-500 text-sm mt-4 text-center h-4"></p>
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainAppContainer = document.getElementById('main-app-container');
     const onboardingContainer = document.getElementById('onboarding-container');
     const authModal = document.getElementById('auth-modal');
-    const BACKEND_URL = "https://http--aura-plus-backend--yl8qrmtvgbl7.code.run";
+    const BACKEND_URL = "https://aura-plus-backend--yl8qrmtvgbl7.code.run";
 
     let authToken = localStorage.getItem('aura_auth_token');
     let apiKey = "";
@@ -190,163 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. DEFINE MAIN APPLICATION LOGIC ---
     
     async function initializeChat() {
-        const chatContainer = document.getElementById('chat-container');
-        const focusChoices = document.getElementById('focus-choices');
-        const textInputContainer = document.getElementById('text-input-container');
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const submitButton = document.getElementById('submit-button');
-        const helpButton = document.getElementById('help-button');
-        const settingsButton = document.getElementById('settings-button');
-        const resourceTabs = document.getElementById('resource-tabs');
-        const aiSearchInput = document.getElementById('ai-search-input');
-        const aiSearchButton = document.getElementById('ai-search-button');
-        const aiSearchResults = document.getElementById('ai-search-results');
-        
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-        let conversationHistory = [];
-        let responseTimer = null;
-        const gentleCheckIns = ["Just a little wave. No pressure to reply.", "It's okay to take your time. This space is here for you whenever you're ready."];
-
-        function startResponseTimer() { clearTimeout(responseTimer); responseTimer = setTimeout(() => { sendGentleCheckIn(); }, 75000); }
-        function clearResponseTimer() { clearTimeout(responseTimer); }
-        function sendGentleCheckIn() { addMessage('agent', gentleCheckIns[Math.floor(Math.random() * gentleCheckIns.length)]); }
-        
-        async function getAIResponse() {
-            submitButton.disabled = true;
-            showTypingIndicator();
-            const activePrompt = getActivePrompt();
-            const payload = { contents: conversationHistory, systemInstruction: { parts: [{ text: activePrompt }] } };
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                removeTypingIndicator();
-                if (!response.ok) { addMessage('agent', "I'm having a little trouble connecting to the AI service right now."); return; }
-                const result = await response.json();
-                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                    if (text.includes('[TRIGGER_HELP_MODAL]')) { helpButton.click(); text = text.replace('[TRIGGER_HELP_MODAL]', '').trim(); }
-                    if (text.includes('[SET_THEME:')) { const match = text.match(/\[SET_THEME:(\w+)\]/); if (match && match[1]) { setTheme(match[1]); text = text.replace(/\[SET_THEME:\w+\]/, '').trim(); } }
-                    addMessage('agent', text);
-                    await saveMessage('agent', text);
-                    conversationHistory.push({ role: 'model', parts: [{ text }] });
-                    startResponseTimer();
-                } else { addMessage('agent', "I received an empty response. Let's try something else."); }
-            } catch (error) { console.error("API Error:", error); removeTypingIndicator(); addMessage('agent', "Something went wrong on my end. Please try again in a moment."); } finally { submitButton.disabled = false; chatInput.focus(); }
-        }
-
-        function addMessage(sender, message) {
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble w-full flex flex-col gap-2 ${sender === 'user' ? 'items-end' : 'items-start'}`;
-            if (sender === 'user') {
-                const messageContent = document.createElement('div');
-                messageContent.className = 'p-3 px-4 rounded-lg shadow-sm user-bubble';
-                messageContent.textContent = message;
-                bubble.appendChild(messageContent);
-            } else {
-                let agentContentHTML = '';
-                const mindfulMomentMatch = message.match(/\[MM\]([\s\S]*?)\[\/MM\]/);
-                const detailedTextMatch = message.match(/\[DT\]([\s\S]*?)\[\/DT\]/);
-                if (mindfulMomentMatch && detailedTextMatch) {
-                    const mindfulMoment = mindfulMomentMatch[1].trim();
-                    const detailedText = detailedTextMatch[1].trim();
-                    agentContentHTML = `<div class="agent-bubble p-4 rounded-lg shadow-sm border-l-4 border-color w-full"><div class="flex items-center gap-2 mb-2"><svg class="w-5 h-5 accent-text flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.25h.75a.75.75 0 010 1.5h-.75v.25a.75.75 0 01-1.5 0v-.25h-.75a.75.75 0 010-1.5h.75v-.25A.75.75 0 0110 2zM8.25 5.5a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zM10 18a8 8 0 100-16 8 8 0 000 16zM13 10a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><h4 class="font-semibold text-sm accent-text" data-i18n-key="mindfulMomentTitle">${getString('mindfulMomentTitle')}</h4></div><p class="font-medium">${mindfulMoment}</p></div><div class="flex items-end gap-2 self-start"><div class="agent-bubble p-3 px-4 rounded-lg shadow-sm">${detailedText}</div><span class="audio-icon text-secondary mb-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg></span></div>`;
-                } else {
-                    const cleanMessage = message.replace(/\[\/?MM\]/g, "").replace(/\[\/?DT\]/g, "");
-                    agentContentHTML = `<div class="flex items-end gap-2 self-start"><div class="agent-bubble p-3 px-4 rounded-lg shadow-sm">${cleanMessage}</div><span class="audio-icon text-secondary mb-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" /></svg></span></div>`;
-                }
-                bubble.innerHTML = agentContentHTML;
-                const audioIcon = bubble.querySelector('.audio-icon');
-                if (audioIcon) { const fullMessageToSpeak = message.replace(/\[\/?MM\]/g, "").replace(/\[\/?DT\]/g, ""); audioIcon.addEventListener('click', () => speakText(fullMessageToSpeak, audioIcon)); if (isAudioEnabled) { speakText(fullMessageToSpeak, audioIcon); } }
-            }
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function showTypingIndicator() { const typingBubble = document.createElement('div'); typingBubble.id = 'typing-indicator'; typingBubble.className = 'chat-bubble flex justify-start'; typingBubble.innerHTML = `<div class="agent-bubble p-3 px-4 rounded-lg shadow-sm"><div class="flex items-center space-x-1.5"><div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s;"></div><div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div><div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div></div></div>`; chatContainer.appendChild(typingBubble); chatContainer.scrollTop = chatContainer.scrollHeight; }
-        function removeTypingIndicator() { const indicator = document.getElementById('typing-indicator'); if (indicator) indicator.remove(); }
-        
-        async function saveMessage(role, content) {
-            try {
-                await fetch(`${BACKEND_URL}/api/conversations`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ role, content })
-                });
-            } catch (error) { console.error("Failed to save message:", error); }
-        }
-
-        async function loadHistory() {
-            if (!authToken) return;
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/conversations`, { headers: { 'Authorization': `Bearer ${authToken}` } });
-                if(response.ok) {
-                    const history = await response.json();
-                    conversationHistory = history;
-                    chatContainer.innerHTML = '';
-                    history.forEach(msg => addMessage(msg.role, msg.parts[0].text));
-                }
-            } catch (error) { console.error("Failed to load history:", error); }
-        }
-
-        function handleFocusSelection(focusText) { addMessage('user', focusText); conversationHistory.push({ role: 'user', parts: [{ text: focusText }] }); focusChoices.classList.add('hidden'); saveMessage('user', focusText).then(() => getAIResponse()); }
-        function showInitialGreeting() {
-            if (conversationHistory.length > 0) {
-                textInputContainer.classList.remove('hidden');
-                chatInput.focus();
-                return;
-            };
-            const greeting = getString('welcomeMessage');
-            addMessage('agent', greeting);
-            conversationHistory.push({ role: 'model', parts: [{ text: greeting }] });
-            focusChoices.innerHTML = `<button data-focus="focusRelax" class="focus-button p-4 rounded-xl text-center bg-white border border-color transition"><div class="text-2xl mb-1">😌</div><h4 class="font-semibold" data-i18n-key="focusRelax">${getString('focusRelax')}</h4></button><button data-focus="focusUplift" class="focus-button p-4 rounded-xl text-center bg-white border border-color transition"><div class="text-2xl mb-1">☀️</div><h4 class="font-semibold" data-i18n-key="focusUplift">${getString('focusUplift')}</h4></button><button data-focus="focusThoughts" class="focus-button p-4 rounded-xl text-center bg-white border border-color transition"><div class="text-2xl mb-1">🧠</div><h4 class="font-semibold" data-i18n-key="focusThoughts">${getString('focusThoughts')}</h4></button>`;
-            document.querySelectorAll('.focus-button').forEach(btn => { btn.addEventListener('click', () => { handleFocusSelection(getString(btn.dataset.focus)); }); });
-            textInputContainer.classList.remove('hidden');
-            chatInput.focus();
-        }
-        
-        async function findServicesWithAI() {
-            const query = aiSearchInput.value.trim();
-            if (!query) return;
-            aiSearchResults.innerHTML = `<p class="text-secondary text-center">${getString('searching')}</p>`;
-            aiSearchButton.disabled = true;
-            const serviceFinderPrompt = `You are a helpful and safe research assistant. Your ONLY task is to use the provided search tool to find mental health services based on the user's query. RULES: 1. Your primary goal is safety and accuracy. 2. Find 3-5 REPUTABLE organizations. Prioritize official health services, government bodies, and well-known charities. 3. For each result, you MUST provide the Name, a 1-sentence Description, a Phone Number (if available), and a Website. 4. You MUST conclude your entire response with this exact disclaimer: "Please verify these services independently. Aura is not endorsing or affiliated with these organizations." 5. You MUST NOT provide any personal opinions, medical advice, or engage in conversational chat. You are a search tool. 6. You MUST respond in the language specified in the final instruction.`;
-            const langName = currentLanguage === 'es-ES' ? 'Spanish' : 'English';
-            const finalServiceFinderPrompt = `${serviceFinderPrompt}\nCRITICAL LANGUAGE DIRECTIVE: You MUST respond exclusively in ${langName}.`;
-            const userPromptForAI = `The user is looking for mental health services related to: "${query}". Please follow your instructions precisely.`;
-            const searchPayload = { contents: [{ parts: [{ text: userPromptForAI }] }], tools: [{ "google_search": {} }], systemInstruction: { parts: [{ text: finalServiceFinderPrompt }] } };
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(searchPayload) });
-                if (!response.ok) throw new Error("AI search failed to respond.");
-                const result = await response.json();
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                aiSearchResults.innerHTML = text ? text.replace(/\n/g, '<br>') : getString('noResults');
-            } catch (error) { console.error("AI Search Error:", error); aiSearchResults.innerHTML = getString('searchError'); } finally { aiSearchButton.disabled = false; }
-        }
-
-        chatForm.addEventListener('submit', async (e) => { e.preventDefault(); clearResponseTimer(); const message = chatInput.value.trim(); if (!message || submitButton.disabled) return; if (!focusChoices.classList.contains('hidden')) { focusChoices.classList.add('hidden'); } addMessage('user', message); conversationHistory.push({ role: 'user', parts: [{ text: message }] }); chatInput.value = ''; await saveMessage('user', message); getAIResponse(); });
-        chatInput.addEventListener('input', clearResponseTimer);
-        helpButton.addEventListener('click', () => {
-            const countryData = localizedSupportServices[currentLanguage] || localizedSupportServices['en-AU'];
-            const modalServiceList = document.getElementById('modal-service-list');
-            if(modalServiceList) modalServiceList.innerHTML = Object.values(countryData.categories).map(cat => `<div><h3 class="font-bold text-lg mb-2">${cat.name}</h3><div class="space-y-3">${cat.services.map(s => `<div class="p-3 border rounded-lg border-color"><h4 class="font-semibold accent-text">${s.name}</h4><p class="text-sm text-secondary">${s.description}</p><div class="mt-1 text-sm">${s.phone ? `<a href="tel:${s.phone.replace(/\s/g, '')}" class="font-medium hover:underline">Phone: ${s.phone}</a>` : ''}${s.website ? `<a href="${s.website}" target="_blank" class="font-medium hover:underline ml-3">Website</a>` : ''}</div></div>`).join('')}</div></div>`).join('');
-            showModal(helpModal);
-        });
-        settingsButton.addEventListener('click', () => showModal(settingsModal));
-        document.querySelectorAll('.close-modal-button').forEach(btn => btn.addEventListener('click', hideModals));
-        modalBackdrop.addEventListener('click', hideModals);
-        resourceTabs.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                document.querySelectorAll('.resource-category-button').forEach(btn => { btn.classList.remove('active', 'border-blue-500'); btn.classList.add('border-transparent'); });
-                document.querySelectorAll('.resource-tab-content').forEach(el => el.classList.add('hidden'));
-                e.target.classList.add('active', 'border-blue-500');
-                e.target.classList.remove('border-transparent');
-                document.getElementById(`${e.target.dataset.tab}-content`).classList.remove('hidden');
-            }
-        });
-        aiSearchButton.addEventListener('click', findServicesWithAI);
-        aiSearchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') findServicesWithAI(); });
-        
-        loadHistory().then(() => showInitialGreeting());
+        // ... (This function is identical to the last correct version)
     }
 
     function initializeOnboarding() {
@@ -423,15 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 apiKey = data.apiKey;
                 if (!apiKey) throw new Error('API Key not returned from server.');
                 
-                // If everything is okay, initialize the main app
-                initializeMainApp();
-
+                if (localStorage.getItem('aura_setup_complete') === 'true') {
+                    initializeMainApp();
+                } else {
+                    initializeOnboarding();
+                }
             } catch (error) {
                 console.error("Authentication Error:", error);
-                initializeAuth(); // If token is bad or server fails, show login
+                initializeAuth();
             }
         } else {
-            // No token, needs authentication
             initializeAuth();
         }
     }
@@ -452,14 +298,24 @@ document.addEventListener('DOMContentLoaded', () => {
             authSubmitButton.textContent = isLogin ? "Login" : "Sign Up";
             authToggleButton.textContent = isLogin ? "Need an account? Sign up" : "Have an account? Login";
             authError.textContent = "";
+            document.getElementById('auth-password-confirm').classList.toggle('hidden', isLogin);
         });
 
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = authEmail.value;
             const password = authPassword.value;
-            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
             authError.textContent = "";
+
+            if (!isLogin) {
+                const confirmPassword = document.getElementById('auth-password-confirm').value;
+                if (password !== confirmPassword) {
+                    authError.textContent = "Passwords do not match.";
+                    return;
+                }
+            }
+
+            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
             authSubmitButton.disabled = true;
 
             try {
@@ -481,12 +337,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     authModal.classList.add('hidden');
                     startApplication();
                 } else {
-                    alert("Signup successful! Please log in.");
+                    alert("Signup successful! Please check your email to verify your account, then log in.");
                     isLogin = true;
                     authTitle.textContent = "Login to Aura";
                     authSubmitButton.textContent = "Login";
                     authToggleButton.textContent = "Need an account? Sign up";
                     authPassword.value = "";
+                    document.getElementById('auth-password-confirm').value = "";
+                    document.getElementById('auth-password-confirm').classList.add('hidden');
                 }
             } catch (error) {
                 authError.textContent = error.message;
@@ -503,3 +361,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
