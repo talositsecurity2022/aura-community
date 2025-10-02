@@ -1,6 +1,6 @@
-![Aura Project Banner](https://placehold.co/1200x300/e0e7ff/3b82f6?text=Aura%20-%20Your%20Compassionate%20AI%20Companion)
+![MoonShadow Project Banner](https://placehold.co/1200x300/e0e7ff/3b82f6?text=Aura%20-%20Your%20Compassionate%20AI%20Companion)
 
-# Aura - Your Compassionate AI Companion
+# MoonShadow - Your Compassionate AI Companion
 
 **A private, secure, and intelligent AI guide for quiet reflection and mental well-being.**
 
@@ -9,21 +9,21 @@
 
 ---
 
-Aura is more than just a chatbot; it's a compassionate companion that adapts to your needs, offering a non-judgmental space to process thoughts, explore feelings, and find trusted local resources. Our mission is to make supportive, psychologically-informed conversations accessible, personal, and always available.
+MoonShadow is more than just a chatbot; it's a compassionate companion that adapts to your needs, offering a non-judgmental space to process thoughts, explore feelings, and find trusted local resources. Our mission is to make supportive, psychologically-informed conversations accessible, personal, and always available.
 
-*A preview of the Aura chat interface on a mobile device.*
+*A preview of the MoonShadow chat interface on a mobile device.*
 
-![Aura Screenshot](https://placehold.co/400x800/ffffff/333333?text=Aura%20Chat%20Interface)
+![MoonShadow Screenshot](https://placehold.co/400x800/ffffff/333333?text=Aura%20Chat%20Interface)
 
 ---
 
 ## Key Features
 
-* **✨ Adaptive AI:** Aura features multiple conversation styles, including a unique adaptive AI that adjusts its tone and approach to match your emotional state, whether you need a mindful sage, a supportive coach, or simply a warm companion.
-* **🧠 Constructive Support:** Moving beyond passive listening, Aura is equipped with a toolkit of gentle, evidence-based techniques to help you reframe negative thoughts, practice self-compassion, and find grounding in moments of overwhelm.
+* **✨ Adaptive AI:** MoonShadow features multiple conversation styles, including a unique adaptive AI that adjusts its tone and approach to match your emotional state, whether you need a mindful sage, a supportive coach, or simply a warm companion.
+* **🧠 Constructive Support:** Moving beyond passive listening, MoonShadow is equipped with a toolkit of gentle, evidence-based techniques to help you reframe negative thoughts, practice self-compassion, and find grounding in moments of overwhelm.
 * **🌐 Comprehensive Resource Hub:** Find the help you need, when you need it. The hub includes a curated directory of trusted national mental health services and a powerful AI Assistant that can perform real-time web searches for specific support in your area.
 * **🎨 Deep Personalization:** Customize your experience with multiple color themes (including a new "Twilight" mode), optional voice responses with localized accents, and a user-curated list of trusted support contacts.
-* **🔒 Privacy by Design:** Aura is built on a foundation of privacy. Conversations are secure, and your personal settings are your own.
+* **🔒 Privacy by Design:** MoonShadow is built on a foundation of privacy. Conversations are secure, and your personal settings are your own.
 
 ---
 
@@ -39,7 +39,7 @@ Aura is more than just a chatbot; it's a compassionate companion that adapts to 
 
 ## Project Status
 
-Aura is currently in active development. The core service is live and functional, with plans for expanded features, deeper personalization, and long-term memory capabilities in the upcoming "Aura Plus" version.
+MoonShadow is currently in active development. The core service is live and functional, with plans for expanded features, deeper personalization, and long-term memory capabilities in the upcoming "MoonShadow Plus" version.
 
 ---
 
