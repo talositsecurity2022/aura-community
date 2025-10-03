@@ -1,20 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="default">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoonShadow - Offline</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(-45deg, #eef2f5, #f8f7f4, #e6e9f0, #f8f7f4);
-            background-size: 400% 400%;
-            animation: gradientAnimation 20s ease infinite;
-            color: #1f2937;
-        }
+    <style> 
+        body { font-family: 'Inter', sans-serif; background-color: #F8F7F4; } 
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -23,8 +16,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
         <h1 class="mt-4 text-2xl font-bold text-gray-800">You are Offline</h1>
-        <p class="mt-2 text-gray-600">MoonShadow needs an internet connection to connect with your AI companion. Please check your network and try again when you're back online.</p>
+        <p class="mt-2 text-gray-600">MoonShadow needs an internet connection. Please check your network and try again when you're back online.</p>
     </div>
 </body>
 </html>
-
