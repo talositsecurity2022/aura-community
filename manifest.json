@@ -8,13 +8,13 @@
   "description": "A private, secure, and intelligent AI guide for quiet reflection and mental well-being.",
   "icons": [
     {
-      "src": "https://placehold.co/192x192/e0e7ff/3b82f6?text=A",
+      "src": "https://placehold.co/192x192/eef2ff/2e1065?text=M",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://placehold.co/512x512/e0e7ff/3b82f6?text=A",
+      "src": "https://placehold.co/512x512/eef2ff/2e1065?text=MS",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
