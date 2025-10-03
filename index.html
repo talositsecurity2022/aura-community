@@ -12,7 +12,7 @@
         [data-theme="sunrise"] { --bg-gradient: linear-gradient(-45deg, #fff2f0, #fffbf5, #ffedd5, #fffbf5); --main-card-bg: rgba(255, 253, 250, 0.7); --agent-bubble-bg: #fef3c7; --user-bubble-bg: #ffedd5; --accent-color: #f97316; --text-primary: #472c1a; --text-secondary: #785a49; --border-color: rgba(253, 230, 208, 0.8); }
         [data-theme="forest"] { --bg-gradient: linear-gradient(-45deg, #f0fdf4, #f0f5f3, #dcfce7, #f0f5f3); --main-card-bg: rgba(248, 252, 250, 0.7); --agent-bubble-bg: #dcfce7; --user-bubble-bg: #cffafe; --accent-color: #0d9488; --text-primary: #1e3a35; --text-secondary: #4a635e; --border-color: rgba(216, 229, 225, 0.8); }
         [data-theme="twilight"] { --bg-gradient: linear-gradient(-45deg, #f5f3ff, #eef2ff, #faf5ff, #eef2ff); --main-card-bg: rgba(245, 243, 255, 0.7); --agent-bubble-bg: #e9d5ff; --user-bubble-bg: #dbeafe; --accent-color: #8b5cf6; --text-primary: #2e1065; --text-secondary: #581c87; --border-color: rgba(221, 214, 254, 0.8); }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient, #F8F7F4); background-size: 400% 400%; animation: gradientAnimation 20s ease infinite; color: var(--text-primary); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient, var(--bg-color)); background-size: 400% 400%; animation: gradientAnimation 20s ease infinite; color: var(--text-primary); }
         .main-card-bg { background-color: var(--main-card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); }
         .agent-bubble { background-color: var(--agent-bubble-bg); border-bottom-left-radius: 0.25rem; }
         .user-bubble { background-color: var(--user-bubble-bg); border-bottom-right-radius: 0.25rem; }
@@ -359,10 +359,10 @@ document.addEventListener('DOMContentLoaded', () => {
         mainAppContainer.classList.remove('hidden');
         onboardingContainer.classList.add('hidden');
         
-        const savedLanguage = localStorage.getItem('moonshadow_current_language') || 'en-AU';
-        const savedPersona = localStorage.getItem('moonshadow_current_persona') || 'adaptive';
-        const savedTheme = localStorage.getItem('moonshadow_current_theme') || 'default';
-        const savedAudio = localStorage.getItem('moonshadow_audio_enabled') === 'true';
+        const savedLanguage = localStorage.getItem('aura_current_language') || 'en-AU';
+        const savedPersona = localStorage.getItem('aura_current_persona') || 'adaptive';
+        const savedTheme = localStorage.getItem('aura_current_theme') || 'default';
+        const savedAudio = localStorage.getItem('aura_audio_enabled') === 'true';
         
         const languageSelect = document.getElementById('language-select');
         if(languageSelect) languageSelect.value = savedLanguage;
@@ -385,31 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. START THE APPLICATION ---
-    async function startApplication() {
+    function startApplication() {
         loadVoices(); // Pre-warm the voice engine
         if (authToken) {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/key`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                if (!response.ok) {
-                    localStorage.removeItem('moonshadow_auth_token');
-                    authToken = null;
-                    throw new Error('Session expired');
-                }
-                const data = await response.json();
-                apiKey = data.apiKey;
-                if (!apiKey) throw new Error('API Key not returned from server.');
-                
-                if (localStorage.getItem('moonshadow_setup_complete') === 'true') {
-                    await initializeMainApp();
-                } else {
-                    initializeOnboarding();
-                }
-            } catch (error) {
-                console.error("Authentication Error:", error);
-                initializeAuth();
-            }
+            initializeMainApp();
         } else {
             initializeAuth();
         }
@@ -428,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         authToggleButton.addEventListener('click', () => {
             isLogin = !isLogin;
-            authTitle.textContent = isLogin ? "Login to MoonShadow" : "Sign Up for MoonShadow";
+            authTitle.textContent = isLogin ? "Login to Aura" : "Sign Up for Aura";
             authSubmitButton.textContent = isLogin ? "Login" : "Sign Up";
             authToggleButton.textContent = isLogin ? "Need an account? Sign up" : "Have an account? Login";
             authError.textContent = "";
@@ -472,13 +451,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isLogin) {
                     const data = await response.json();
                     authToken = data.token;
-                    localStorage.setItem('moonshadow_auth_token', authToken);
+                    localStorage.setItem('aura_auth_token', authToken);
                     authModal.classList.add('hidden');
                     startApplication();
                 } else {
                     alert("Signup successful! Please log in.");
                     isLogin = true;
-                    authTitle.textContent = "Login to MoonShadow";
+                    authTitle.textContent = "Login to Aura";
                     authSubmitButton.textContent = "Login";
                     authToggleButton.textContent = "Need an account? Sign up";
                     authPassword.value = "";
